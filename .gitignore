@@ -1,0 +1,7 @@
+!logs/test.log
+logs/*
+*.gz
+data/*
+datasets/data/*
+*.pyc
+results_test/*
