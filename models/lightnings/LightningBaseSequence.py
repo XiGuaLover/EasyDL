@@ -7,11 +7,13 @@ import numpy as np
 import pytorch_lightning as pl
 from torch import Tensor
 from torch.optim.optimizer import Optimizer
-from utils.ConfigType import BaseRNNConfig
+
+from utils.ConfigType import BaseRNNConfig, MetricType
 from utils.ScheduledSampler import ScheduledSampler
 from utils.tools import (
     calculateMetric,
     calculateMetricOpenSTLStyle,
+    calculateSSIM,
     getFinalOptimizers,
     getScheduler,
     reshape_to_patches,
@@ -68,6 +70,14 @@ class LightningBaseSequenceModel(pl.LightningModule, ABC):
                 resultOpenSTLStyle[metric] = calculateMetricOpenSTLStyle(
                     metric, outputImages, batchImageTarget
                 )
+                if metric == MetricType.SSIM:
+                    _, seqLen, _, _, _ = outputImages.shape
+                    for t in range(seqLen):
+                        y_hat_frames = outputImages[:, t, :, :, :]
+                        y_frames = batchImageTarget[:, t, :, :, :]
+                        resultOpenSTLStyle[metric.value + "_" + str(t)] = calculateSSIM(
+                            y_hat_frames, y_frames
+                        )
             result["validation_loss"] = loss
             self.validation_step_outputs.append(result)
             self.metricsOpenSTLStyle.append(resultOpenSTLStyle)

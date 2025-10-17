@@ -10,12 +10,18 @@ from pytorch_lightning.tuner import Tuner
 from torch import Tensor
 from torch.optim.optimizer import Optimizer
 from torchmetrics.functional import structural_similarity_index_measure as ssim
+
 from utils.ConfigType import MetricType
 
 from .ConfigData import (
     SuperParams,
 )
-from .ConfigType import CosineAnnealingLRConfig, NetConfig, OneCycleLRConfig
+from .ConfigType import (
+    CosineAnnealingLRConfig,
+    ExperimentConfig,
+    NetConfig,
+    OneCycleLRConfig,
+)
 
 
 def getLoggerName(cfg: NetConfig) -> str:
@@ -309,11 +315,29 @@ def calculateMetricOpenSTLStyle(metricType: MetricType, y_hat: Tensor, y: Tensor
         raise NotImplementedError("Metric type not implemented")
 
 
+def calculateSSIM(y_hat_frames: Tensor, y_frames: Tensor):
+    score = ssim(y_hat_frames, y_frames, data_range=1.0)
+    result = torch.mean(score)
+    return result
+
+
 def geMetricsLoggerDir(writeTo: str) -> str:
     dir = os.path.join(SuperParams.logDir, SuperParams.metricsLogDir)
     os.makedirs(dir, exist_ok=True)
     fileName = f"{writeTo}_metrics.txt"
     return os.path.join(dir, fileName)
+
+
+def writeModelInfoToMetricsFile(
+    lr: float,
+    expConfig: ExperimentConfig,
+    writeTo: str = "unknownClass",
+):
+    fileName = geMetricsLoggerDir(writeTo)
+    with open(fileName, "a") as f:
+        f.write(
+            f"time: {str(datetime.now().strftime('%Y%m%d-%H.%M.%S'))},lr: {lr} , expConfig: {expConfig}\n"
+        )
 
 
 def writeMetrics(
