@@ -3,17 +3,22 @@ from datetime import datetime
 from typing import List, Union
 
 import pytorch_lightning as pl
-from datasets.TyphoonTimeSeriesModule import TyphoonTimeSeriesModule
-from models.lightnings.LightningConvLSTM import LightningConvLSTM
-from models.lightnings.LightningPredRNN import LightningPredRNN
-from models.lightnings.LightningPredRnnPP import LightningPredRnnPP
-from models.lightnings.LightningPredRnnV2 import LightningPredRnnV2
 from pytorch_lightning.callbacks import (
     Callback,
     EarlyStopping,
     ModelCheckpoint,
 )
 from pytorch_lightning.loggers import TensorBoardLogger
+
+from datasets.TyphoonTimeSeriesModule import TyphoonTimeSeriesModule
+from models.lightnings.LightningConvLSTM import LightningConvLSTM
+from models.lightnings.LightningE3DLSTM import LightningE3DLSTM
+from models.lightnings.LightningPhyDNet import LightningPhyDNet
+from models.lightnings.LightningPredFormer import LightningPredFormer
+from models.lightnings.LightningPredRNN import LightningPredRNN
+from models.lightnings.LightningPredRnnPP import LightningPredRnnPP
+from models.lightnings.LightningPredRnnV2 import LightningPredRnnV2
+from models.lightnings.LightningSwinLSTM import LightningSwinLSTM
 
 from .callbacks import (
     InitLogCallback,
@@ -101,6 +106,26 @@ def getLightningConvLSTM(cfg) -> LightningConvLSTM:
     return model
 
 
+def getLightningE3DLSTM(cfg) -> LightningE3DLSTM:
+    model = LightningE3DLSTM(config=cfg)
+    return model
+
+
+def getLightningPredFormer(cfg) -> LightningPredFormer:
+    model = LightningPredFormer(config=cfg)
+    return model
+
+
+def getLightningSwinLSTM(cfg) -> LightningSwinLSTM:
+    model = LightningSwinLSTM(config=cfg)
+    return model
+
+
+def getLightningPhyDNet(cfg) -> LightningPhyDNet:
+    model = LightningPhyDNet(config=cfg)
+    return model
+
+
 def getDataModule(
     cfg: NetConfig,
 ) -> Union[TyphoonTimeSeriesModule,]:
@@ -116,6 +141,10 @@ def _getModel(
         LightningModelID.LightningPredRNN: getLightningPredRNN,
         LightningModelID.LightningPredRnnV2: getLightningPredRnnV2,
         LightningModelID.LightningPredRnnPP: getLightningPredRNNPP,
+        LightningModelID.LightningE3DLSTM: getLightningE3DLSTM,
+        LightningModelID.LightningPhyDNet: getLightningPhyDNet,
+        LightningModelID.LightningPredFormer: getLightningPredFormer,
+        LightningModelID.LightningSwinLSTM: getLightningSwinLSTM,
     }
 
     model = modelRouter.get(lightningModelID)
@@ -140,6 +169,10 @@ def _getModelFromCheckpoint(
         LightningModelID.LightningPredRNN: LightningPredRNN,
         LightningModelID.LightningPredRnnV2: LightningPredRnnV2,
         LightningModelID.LightningPredRnnPP: LightningPredRnnPP,
+        LightningModelID.LightningE3DLSTM: LightningE3DLSTM,
+        LightningModelID.LightningPhyDNet: LightningPhyDNet,
+        LightningModelID.LightningPredFormer: LightningPredFormer,
+        LightningModelID.LightningSwinLSTM: LightningSwinLSTM,
     }
 
     model_class: pl.LightningModule = model_router.get(lightningModelID)

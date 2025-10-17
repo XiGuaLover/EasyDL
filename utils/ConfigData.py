@@ -9,6 +9,9 @@ from .configDatas.defaultConfigData import (
     defaultDataPathConfig,
     getBaseRNNConfig,
     getDigitalTyphoonRunConfig,
+    getPhyDNetConfig,
+    getPredFormerConfig,
+    getSwinLSTMConfig,
 )
 from .ConfigType import (
     BaseRNNConfig,
@@ -17,6 +20,7 @@ from .ConfigType import (
     DataModuleID,
     DataSetTimeSetting,
     DigitalTyphoonTimeSeriesDataLoadConfig,
+    E3DLSTMConfig,
     ExperimentConfig,
     LightningModelID,
     MetricType,
@@ -45,14 +49,10 @@ class EarlyStopConfigData:
 
 class SuperParams:
     runNets: List[NetID] = [
-        NetID.ConvLSTM_DigitalTyphoon,
-        NetID.PredRnn_DigitalTyphoon,
-        NetID.PredRnnV2_DigitalTyphoon,
-        NetID.PredRnnPP_DigitalTyphoon,
-        NetID.ConvLSTM_DigitalTyphoonOne,
-        NetID.PredRnn_DigitalTyphoonOne,
-        NetID.PredRnnV2_DigitalTyphoonOne,
-        NetID.PredRnnPP_DigitalTyphoonOne,
+        NetID.PhyDNet_DigitalTyphoon,
+        NetID.PredFormer_DigitalTyphoon,
+        NetID.E3DLSTM_DigitalTyphoon,
+        NetID.SwinLSTM_DigitalTyphoon,
     ]
 
     accelerator = "gpu" if torch.cuda.is_available() else "cpu"
@@ -64,6 +64,62 @@ class SuperParams:
 
 class NetConfigData:
     data: List[NetConfig] = [
+        NetConfig(
+            id=NetID.E3DLSTM_DigitalTyphoon,
+            trainEpoch=10,
+            check_val_every_n_epoch=1,
+            seed=42,
+            enable_progress_bar=False,
+            lightningModelID=LightningModelID.LightningE3DLSTM,
+            lightningModelConfig=E3DLSTMConfig(
+                baseRNNConfig=getBaseRNNConfig(
+                    images_save_dir="images/E3DLSTM_DigitalTyphoon",
+                    kernel_size=(5, 5, 5),
+                ),
+                patch_size=4,
+                layer_norm=False,
+                window_length=2,
+                window_stride=1,
+            ),
+            runConfig=getDigitalTyphoonRunConfig(),
+        ),
+        NetConfig(
+            id=NetID.PhyDNet_DigitalTyphoon,
+            trainEpoch=10,
+            check_val_every_n_epoch=1,
+            seed=42,
+            enable_progress_bar=False,
+            lightningModelID=LightningModelID.LightningPhyDNet,
+            lightningModelConfig=getPhyDNetConfig(
+                img_height=128,
+                img_width=128,
+            ),
+            runConfig=getDigitalTyphoonRunConfig(),
+        ),
+        NetConfig(
+            id=NetID.SwinLSTM_DigitalTyphoon,
+            trainEpoch=10,
+            check_val_every_n_epoch=1,
+            seed=42,
+            enable_progress_bar=False,
+            lightningModelID=LightningModelID.LightningSwinLSTM,
+            lightningModelConfig=getSwinLSTMConfig(),
+            runConfig=getDigitalTyphoonRunConfig(),
+        ),
+        NetConfig(
+            id=NetID.PredFormer_DigitalTyphoon,
+            trainEpoch=10,
+            check_val_every_n_epoch=1,
+            seed=42,
+            enable_progress_bar=False,
+            lightningModelID=LightningModelID.LightningPredFormer,
+            lightningModelConfig=getPredFormerConfig(
+                height=128,
+                width=128,
+                pre_seq=12,
+            ),
+            runConfig=getDigitalTyphoonRunConfig(),
+        ),
         NetConfig(
             id=NetID.ConvLSTM_DigitalTyphoon,
             trainEpoch=10,

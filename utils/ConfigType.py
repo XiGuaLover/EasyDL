@@ -3,8 +3,9 @@ from enum import Enum
 from typing import List, Optional, Tuple, Union
 
 import torch.nn
-from libs.pyphoon2.DigitalTyphoonUtils import LOAD_DATA, SPLIT_UNIT
 from torch.optim.optimizer import Optimizer
+
+from libs.pyphoon2.DigitalTyphoonUtils import LOAD_DATA, SPLIT_UNIT
 
 
 class NetID(Enum):
@@ -16,6 +17,10 @@ class NetID(Enum):
     PredRnnV2_DigitalTyphoonOne = "PredRnnV2_DigitalTyphoonOne"
     PredRnnPP_DigitalTyphoonOne = "PredRnnPP_DigitalTyphoonOne"
     ConvLSTM_DigitalTyphoonOne = "ConvLSTM_DigitalTyphoonOne"
+    E3DLSTM_DigitalTyphoon = "E3DLSTM_DigitalTyphoon"
+    PhyDNet_DigitalTyphoon = "PhyDNet_DigitalTyphoon"
+    SwinLSTM_DigitalTyphoon = "SwinLSTM_DigitalTyphoon"
+    PredFormer_DigitalTyphoon = "PredFormer_DigitalTyphoon"
 
 
 class LightningModelID(Enum):
@@ -23,6 +28,10 @@ class LightningModelID(Enum):
     LightningPredRNN = "LightningPredRNN"
     LightningConvLSTM = "LightningConvLSTM"
     LightningPredRnnV2 = "LightningPredRnnV2"
+    LightningE3DLSTM = "LightningE3DLSTM"
+    LightningPhyDNet = "LightningPhyDNet"
+    LightningSwinLSTM = "LightningSwinLSTM"
+    LightningPredFormer = "LightningPredFormer"
 
 
 class MetricType(Enum):
@@ -145,6 +154,74 @@ class PredRnnV2Config(PredRNNConfig):
 @dataclass
 class ConvLSTMConfig:
     baseRNNConfig: BaseRNNConfig
+
+
+@dataclass
+class E3DLSTMConfig:
+    baseRNNConfig: BaseRNNConfig
+    patch_size: int
+    layer_norm: bool
+    window_length: int
+    window_stride: int
+
+
+@dataclass
+class PhyDNetConfig(BaseConfig):
+    scheduledSampleConfig: ScheduledSampleConfig
+    phy_cell_num_hidden: List[int]
+    conv_num_hidden: List[int]
+    phy_cell_kernel_size: Tuple[int, int]
+    conv_cell_kernel_size: Tuple[int, int]
+    k2m_shape: List[int]
+    constraints_shape: Tuple[int, int, int]
+
+    experimentConfig: ExperimentConfig = field(default_factory=ExperimentConfig)
+
+
+@dataclass
+class SwinLSTMConfig:
+    learning_rate: float
+    final_div_factor: float
+    num_save_samples: int
+    images_save_dir: str
+    input_channels: int
+    input_img_size: int
+    patch_size: int
+    embed_dim: int
+    depths_downSample: List[int]
+    depths_upsample: List[int]
+    heads_number: List[int]
+    window_size: int
+
+    experimentConfig: ExperimentConfig = field(default_factory=ExperimentConfig)
+
+
+@dataclass
+class PredFormerComponentConfig:
+    height: int
+    width: int
+    patch_size: int
+    pre_seq: int
+    dim: int
+    num_channels: int
+    heads: int
+    dim_head: int
+    dropout: float
+    attn_dropout: float
+    drop_path: float
+    scale_dim: int
+    nDepth: int
+    depth: int
+
+
+@dataclass
+class PredFormerConfig:
+    componentConfig: PredFormerComponentConfig
+    learning_rate: float
+    num_save_samples: int
+    images_save_dir: str
+
+    experimentConfig: ExperimentConfig = field(default_factory=ExperimentConfig)
 
 
 @dataclass
